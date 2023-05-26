@@ -1,0 +1,57 @@
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+@Component({
+  selector: 'my-app',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+})
+export class AppComponent implements OnInit {
+  name = 'Angular';
+  public arr = [];
+  public tableall: any = [
+    {
+      p_id: '11',
+      product_name: 'CG1',
+      product_weight: '1Kg',
+    },
+    {
+      p_id: '21',
+      product_name: 'CS2',
+      product_weight: '2Kg',
+    },
+    {
+      p_id: '34',
+      product_name: 'HK3',
+      product_weight: '3Kg',
+    },
+    {
+      p_id: '56',
+      product_name: 'GM4',
+      product_weight: '1Kg',
+    },
+    {
+      p_id: '23',
+      product_name: 'CS5',
+      product_weight: '2Kg',
+    },
+  ];
+  ngOnInit() {}
+  constructor(private http: HttpClient) {}
+  getProoduct(isSelected, product) {
+    this.http.post('../assets/sampledata.json', JSON.stringify(product));
+    console.log(isSelected, JSON.stringify(product));
+  }
+
+  // getProoduct(e,data){
+
+  //    if(e.target.checked)
+  //      {
+  //       // alert(data);
+  //        this.arr.push(data);
+  //      }  else{
+  //        //alert(data);
+  //        this.arr.pop(data);
+  //      }
+  //      console.log(this.arr);
+  // }
+}

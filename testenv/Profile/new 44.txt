@@ -1,0 +1,35 @@
+							If FSCcount = 1 Or IsFscApplicable = False Or isSuperUserForFSCValidation = True Then
+                                drDeliveryModedataset = dtDeliveryModedataset.Select("BilltoCode = '" & BilltoCode & "' and Accountcode = '" & AccountCode & "'")
+                                If drDeliveryModedataset.Length > 0 Then
+                                    If IsDBNull(drDeliveryModedataset.GetValue(0)(0)) = False Then
+                                        DeliveryMode = drDeliveryModedataset.GetValue(0)(0)
+                                    Else
+                                        DeliveryMode = ""
+                                    End If
+
+                                    If DeliveryMode = "IMS" Then
+                                        Dim dictDataIMSToggling As List(Of KeyValuePair(Of String, Object)) = New List(Of KeyValuePair(Of String, Object))
+                                        dictDataIMSToggling.Add(New KeyValuePair(Of String, Object)("HAWB", HAWBNumber))
+                                        dictDataIMSToggling.Add(New KeyValuePair(Of String, Object)("Division", Division))
+                                        dictDataIMSToggling.Add(New KeyValuePair(Of String, Object)("Station", Station))
+
+                                        arrListShipmentsIMSToggling.Add(dictDataIMSToggling)
+                                        arrShipmentIMSTogglingStatus(IMSTogglingshipmentCount) = 0
+                                        IMSTogglingshipmentCount = IMSTogglingshipmentCount + 1
+                                        newInQueueShipment = newInQueueShipment + 1
+                                    Else
+                                        NonProcessedHawb += " | " + HAWBNumber
+                                    End If
+                                Else
+                                    notFoundBilltoCode += " | " + HAWBNumber
+                                    If BilltoCodeNotINTable <> Nothing Then
+                                        If BilltoCodeNotINTable.Contains(BilltoCode) = False Then
+                                            BilltoCodeNotINTable += " | " + BilltoCode
+                                        End If
+                                    Else
+                                        BilltoCodeNotINTable += " | " + BilltoCode
+                                    End If
+                                End If
+                            Else
+                                ZeroFSCValue += " | " + HAWBNumber
+                            End If

@@ -1,0 +1,8 @@
+https://ceva-uat.invoize.com/api/shipmentProfile/6441159a3e9b4541f6aa3f82?accountShipmentProfile=true
+
+
+
+
+
+charge profile : syncada remove krna done
+shipment Profile : profile based cat_m se lena h done

@@ -1,0 +1,5 @@
+							HAWBNumber = DataGridViewHAWB.Rows(i).Cells("HAWB").Value.ToString
+                            Division = DataGridViewHAWB.Rows(i).Cells("stationcode").Value.ToString
+                            Station = DataGridViewHAWB.Rows(i).Cells("PODRtPrtStn").Value.ToString
+                            AccountCode = DataGridViewHAWB.Rows(i).Cells("Accountcode").Value.ToString
+                            BilltoCode = DataGridViewHAWB.Rows(i).Cells("PODBilltoCode").Value.ToString

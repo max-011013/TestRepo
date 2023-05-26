@@ -1,0 +1,69 @@
+
+	"_id" : "5702471a94dc36043043676d", 
+    "system" : "5649d0ce087df204a8a71638", 
+
+
+
+
+	"organization" : "555af07389025b2b58759bca", 
+    "isActive" : true, 
+    "templateId" : "5649d0c9087df204a8a71636", 
+    "relations" : {
+        "parentAccounts" : [
+            {
+                "accountName" : "NIKE MASTER", 
+                "id" : "569c93b43f26c104eefe55ba", 
+                "accountNumber" : "NIKE_M"
+            }
+        ]
+    }, 
+    "shipmentProfile" : "", 
+    "paymentTerm" : 30.0, 
+    "groupName" : "Nike"
+	
+	
+	
+	if records["Account Number"].isnumeric():
+            records["groupName"] = records["Parent Account"].split(" ")[0]
+            records["relations"] = {
+            "parentAccounts" : [
+                {
+                    "accountName" : "NIKE MASTER", 
+                    "id" : "569c93b43f26c104eefe55ba", 
+                    "accountNumber" : "NIKE_M"
+                }
+            ]
+        }
+        else:
+            records["groupName"] = records["Account Name"].split(" ")[0]
+            records["relations"] = {
+            "parentAccounts" : [
+                {
+                    "accountName" : None, 
+                    "id" : None, 
+                    "accountNumber" : None
+                }
+            ]
+        }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	post = {"author": "Mike",
+        "text": "My first blog post!",
+        "tags": ["mongodb", "python", "pymongo"],
+        "date": datetime.datetime.utcnow()}
+
+posts = db.posts
+post_id = posts.insert_one(post).inserted_id

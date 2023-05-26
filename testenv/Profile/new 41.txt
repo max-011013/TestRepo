@@ -1,0 +1,64 @@
+string UserId = RequestContext.Principal.Identity.GetUserId();
+static List<string> colors = new List<string>() {
+            "Blue", "Red", "Yellow",  "Violet", "Orange", "Green"
+        };
+
+
+For Auth token Generator:
+public void Apply(SwaggerDocument swaggerDoc, SchemaRegistry schemaRegistry, IApiExplorer apiExplorer)
+        {
+            swaggerDoc.paths.Add("/token", new PathItem
+            {
+                post = new Operation
+                {
+                    tags = new List<String> { "Auth" },
+                    consumes = new List<String>
+                    {
+                        "application/x-www-form-urlencod"
+                    },
+                    parameters = new List<Parameter>
+                    {
+                        new Parameter
+                        {
+                            type= "string",
+                            name= "grant_type",
+                            required= true,
+                            @in= "formData",
+                            @default= "password",
+                        },
+                        new Parameter
+                        {
+                            type= "string",
+                            name= "username",
+                            required= false,
+                            @in= "formData",
+                        },
+                        new Parameter
+                        {
+                            type= "string",
+                            name= "password",
+                            required= false,
+                            @in= "formData",
+                        }
+                    }
+                }
+            });
+        }
+		
+
+
+For Authorization Operator-Add parameters for every operations
+public void Apply(Operation operation, SchemaRegistry schemaRegistry, ApiDescription apiDescription)
+        {
+            if (operation.parameters == null) {
+                operation.parameters = new List<Parameter>();
+            }
+            operation.parameters.Add(new Parameter
+            {
+                name = "Authorization",
+                @in = "header",
+                description = "Access Token",
+                required = false,
+                type = "string"
+            });
+        }

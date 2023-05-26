@@ -1,0 +1,1 @@
+exec LIVE_BILLINGRATING.dbo.[GetDomesticHAWBListView] '1016','3722','''BJSC25015''','LIVE_METADATA.dbo.','LIVE_BILLINGRATING.dbo.','ShipmentRates','','56'

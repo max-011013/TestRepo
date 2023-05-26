@@ -1,0 +1,28 @@
+<table id="customers">
+  <thead>
+    <th>S.No</th>
+    <th></th>
+    <th>PID</th>
+    <th>Product Name</th>
+    <th>Kilo</th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of tableall; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>
+        <input
+          type="checkbox"
+          [(ngModel)]="data.isSelected"
+          (change)="
+            getProoduct(data.isSelected, { productName: data.product_name })
+          "
+        />
+      </td>
+      <td>{{ data.p_id }}</td>
+      <td>{{ data.product_name }}</td>
+      <td>{{ data.product_weight }}</td>
+    </tr>
+  </tbody>
+
+  <tbody></tbody>
+</table>

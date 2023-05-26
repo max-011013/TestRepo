@@ -1,0 +1,134 @@
+{
+            SqlConnection sqlconn = new SqlConnection(mainconnn);
+            bool IsFscApplicable;
+            int FSCRatesID, FSCount = 0;
+            int newInQueueShipment = 0;
+            string ProcessType = CV.ProcessType;
+            string temp = CV.Hawb;
+            DataTable dtDeliveryModedataset = new DataTable();
+            DataRow drDeliveryModedataset = dtDeliveryModedataset.NewRow();
+            var lst = JsonConvert.DeserializeObject<List<GridViewModel>>(temp);
+
+            int checkWPRatingisActive = checkWPRatingActive(CV.ID);
+            if (checkWPRatingisActive == 0)
+            {
+                string Message = "WP Rating Toggling has been deactivated for this Client";
+                return Json(Message);
+            }
+            else
+            {
+                checkFSCApplicability(CV, out IsFscApplicable, out FSCRatesID);
+                //Need some advice on it
+                //dtDeliveryModedataset = DomesticWorldPortConfiguration.select.ToString()("delivermode");
+
+                if (ProcessType == "IT")
+                {
+                    foreach (GridViewModel item in lst)
+                    {
+                        string HAWBNumber = item.Hawb.ToString();
+                        string Division = item.StationCode.ToString();
+                        string Station = item.PODRtPrtStn.ToString();
+                        string AccountCode = item.AccountCode.ToString();
+                        string BilltoCode = item.PODBillToCode.ToString();
+                        if (IsFscApplicable == true)
+                        {
+                            string query = "select count(*) from shipmentrates where hawb = '" + HAWBNumber + "' and rateid = " + FSCRatesID + "";
+                            sqlconn.Open();
+                            SqlCommand sqlcomm = new SqlCommand(query, sqlconn);
+                            FSCount = Convert.ToInt32(sqlcomm.ExecuteScalar());
+                        }
+                        //If (FSCcount = 1 Or IsFscApplicable = False Or isSuperUserForFSCValidation = True)
+                        if ((FSCount == 1) || (IsFscApplicable == false))
+                        {
+                            string DeliveryMode;
+                            drDeliveryModedataset = dtDeliveryModedataset.Select("BilltoCode = '" + BilltoCode + "' and Accountcode = '" + AccountCode + "'")[0];
+
+                            if (drDeliveryModedataset != null)
+                            {
+                                if (Information.IsDBNull(drDeliveryModedataset.ItemArray[0].ToString()) == false)
+                                {
+                                    DeliveryMode = drDeliveryModedataset.ItemArray[0].ToString();
+                                }
+                                else
+                                    DeliveryMode = "";
+                                if (DeliveryMode == "IMS")
+                                {
+                                    var dictDataIMSToggling = new List<KeyValuePair<string, object>>();
+                                    dictDataIMSToggling.Add(new KeyValuePair<string, object>("HAWB", HAWBNumber));
+                                    dictDataIMSToggling.Add(new KeyValuePair<string, object>("Division", Division));
+                                    dictDataIMSToggling.Add(new KeyValuePair<string, object>("Station", Station));
+
+                                    //arrListShipmentsIMSToggling.Add(dictDataIMSToggling)
+                                    //arrShipmentIMSTogglingStatus(IMSTogglingshipmentCount) = 0
+                                    //IMSTogglingshipmentCount = IMSTogglingshipmentCount + 1
+                                    newInQueueShipment++;
+                                }
+                                //add else condition for getting NonProcessedHawb += " | " + item.hawb
+                            }
+                            //add else part later
+
+
+                        }
+                        //add else part for getting ZeroFSCValue += " | " + item.hawb
+                    }
+                }
+                else if (ProcessType == "ET")
+                {
+                    foreach (GridViewModel item in lst)
+                    {
+                        string HAWBNumber = item.Hawb.ToString();
+                        string Division = item.StationCode.ToString();
+                        string Station = item.PODRtPrtStn.ToString();
+                        string AccountCode = item.AccountCode.ToString();
+                        string BilltoCode = item.PODBillToCode.ToString();
+                        if (IsFscApplicable == true)
+                        {
+                            string query = "select count(*) from shipmentrates where hawb = '" + HAWBNumber + "' and rateid = " + FSCRatesID + "";
+                            sqlconn.Open();
+                            SqlCommand sqlcomm = new SqlCommand(query, sqlconn);
+                            FSCount = Convert.ToInt32(sqlcomm.ExecuteScalar());
+                        }
+                        //If (FSCcount = 1 Or IsFscApplicable = False Or isSuperUserForFSCValidation = True)
+                        if ((FSCount == 1) || (IsFscApplicable == false))
+                        {
+                            string DeliveryMode, GroupName;
+                            drDeliveryModedataset = dtDeliveryModedataset.Select("BilltoCode = '" + BilltoCode + "' and Accountcode = '" + AccountCode + "'")[0];
+
+                            if (drDeliveryModedataset != null)
+                            {
+                                if (Information.IsDBNull(drDeliveryModedataset.ItemArray[0].ToString()) == false)
+                                {
+                                    DeliveryMode = drDeliveryModedataset.ItemArray[0].ToString();
+                                    GroupName = drDeliveryModedataset.ItemArray[1].ToString();
+                                }
+                                else
+                                {
+                                    DeliveryMode = "";
+                                    GroupName = "";
+                                }
+                                if (DeliveryMode == "IMS")
+                                {
+                                    var dictDataIMSToggling = new List<KeyValuePair<string, object>>();
+                                    dictDataIMSToggling.Add(new KeyValuePair<string, object>("HAWB", HAWBNumber));
+                                    dictDataIMSToggling.Add(new KeyValuePair<string, object>("DeliveryMode", DeliveryMode));
+                                    dictDataIMSToggling.Add(new KeyValuePair<string, object>("AccountGroupName", GroupName));
+                                    dictDataIMSToggling.Add(new KeyValuePair<string, object>("Status", ""));
+
+                                    //arrListShipmentsEDIToggling.Add(dictDataEDIToggling)
+                                    //arrShipmentEDITogglingStatus(EDITogglingshipmentCount) = 0
+                                    //IMSTogglingshipmentCount = IMSTogglingshipmentCount + 1
+                                    newInQueueShipment++;
+                                }
+                                //add else condition for getting NonProcessedHawb += " | " + item.hawb
+                            }
+                            //add else part later
+
+
+                        }
+                        //add else part for getting ZeroFSCValue += " | " + item.hawb
+                    }
+                }
+
+            }
+            return Json(true);
+        }

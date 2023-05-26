@@ -1,0 +1,37 @@
+DRB - Domestic Rating and billing
+IRB- International Rating and billing
+This are two Different teams who handle SEVA Shipments request
+CEVA is US based logistics company
+Domestic is based in USA itself
+International is based out of USA
+
+Teams do Revenue calculated based on shipping of two locations:
+Domestic - WorldPort (WP)  - Integrated with GBA
+International - OFS
+
+Tarrif Rating system based on Customers requests as well along with Local predefined tarrif.
+Rates are defined in Standard Tariff which is proposed to customer if thats agreed upon then shipping continues with the same tarrif
+another is customers own demanded tarrif
+Tarriff are divided into zones which consist of states (For Locations)
+
+
+GBA: (Only Deals with Domestic) 3 Step Process
+1-
+Report Extraction from WorldPort: OTM(on time measurement),POD(Proof of Delivery),DIM - (dimensional report) 
+OTM Report- Customer wise (Zones, Weight etc) Time SLot (11am -6pm manual fetching is disabled)
+POD- How many shipments we have to process based on customers data. (Has limited columns)
+For details as POD has limited columns, other related data is available in OTM and can be fetched using customer code for single customers
+DIM - (Length, Height of parcel and more)
+
+*** POD report is processed within half an hour in GBA  (when status is delivered)
+
+2- Rates Calculation
+3- Invoicing(Send to Customers)
+
+Connects to backend of WorldPort to fetch Reports: 
+Subjects are similars for same type reports
+
+TFR Team collects data for Tarrif rates and adds data into tables Tarriff related things are related to TRF.
+IMS and EDI
+Invoice management system
+electonic data interchange

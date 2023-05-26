@@ -1,0 +1,36 @@
+{
+            "profileBased" : false,
+            "isDocUPload" : true,
+            "isUniqueField" : true,
+            "isReadonly" : false,
+            "isMandatory" : true,
+            "useForCustomReport" : true,
+            "label" : "Shipment Number",
+            "displayOrder" : NumberInt(1),
+            "regex" : null,
+            "groupKey" : "shipmentInformation",
+            "tariffIdentifier" : false,
+            "isMasterField" : true,
+            "isMultiple" : false,
+            "type" : "text",
+            "isDefault" : false,
+            "validationActive" : true,
+            "description" : "",
+            "suggestionsSource" : "",
+            "errorMessage" : "",
+            "groupCaption" : "Shipment Information",
+            "toolTip" : "Shipment Number",
+            "isDependent" : false,
+            "key" : "shipmentNumber",
+            "addInAccessSet" : false,
+            "isActive" : true,
+            "length" : NumberInt(20),
+            "customFlag" : false
+        }
+		
+		Request URL: https://ceva-uat.invoize.com/api/account?currentContext=accounts&templateId=5649d0c9087df204a8a71636&pageLimit=25&pageNo=1&q=apollo
+
+
+
+
+	https://ceva-uat.invoize.com/api/grid?type=account&templateId=5649d0c9087df204a8a71636&currentContext=accounts.viewAccounts

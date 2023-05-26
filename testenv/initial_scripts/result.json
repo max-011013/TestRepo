@@ -1,0 +1,182 @@
+[
+    {
+        "Account Number": "Test1_M",
+        "Account Name": "Test1_Master",
+        "Address1": "E street",
+        "City": "VERNON HILLS",
+        "Country name": "United States",
+        "Zip Code": 60061,
+        "State": "CA",
+        "Country Code": "US",
+        "Parent Account": null,
+        "address2": "",
+        "address3": "",
+        "address4": "",
+        "shipmentProfile": "",
+        "paymentTerm": "",
+        "groupName": "Test1_Master",
+        "relations": {
+            "parentAccounts": [
+                {
+                    "accountName": null,
+                    "id": null,
+                    "accountNumber": null
+                }
+            ]
+        },
+        "system": "5649d0ce087df204a8a71638",
+        "templateId": "5649d0ce087df204a8a71638",
+        "organization": "5649d0ce087df204a8a71638",
+        "isActive": true
+    },
+    {
+        "Account Number": "45123",
+        "Account Name": "1Test",
+        "Address1": "E street",
+        "City": "VERNON HILLS",
+        "Country name": "United States",
+        "Zip Code": 60061,
+        "State": "CA",
+        "Country Code": "US",
+        "Parent Account": "Test1_M",
+        "address2": "",
+        "address3": "",
+        "address4": "",
+        "shipmentProfile": "",
+        "paymentTerm": "",
+        "groupName": "Test1_M",
+        "relations": {
+            "parentAccounts": [
+                {
+                    "accountName": "NIKE MASTER",
+                    "id": "569c93b43f26c104eefe55ba",
+                    "accountNumber": "NIKE_M"
+                }
+            ]
+        },
+        "system": "5649d0ce087df204a8a71638",
+        "templateId": "5649d0ce087df204a8a71638",
+        "organization": "5649d0ce087df204a8a71638",
+        "isActive": true
+    },
+    {
+        "Account Number": "25784",
+        "Account Name": "2Test",
+        "Address1": "E street",
+        "City": "VERNON HILLS",
+        "Country name": "United States",
+        "Zip Code": 60061,
+        "State": "CA",
+        "Country Code": "US",
+        "Parent Account": "Test1_M",
+        "address2": "",
+        "address3": "",
+        "address4": "",
+        "shipmentProfile": "",
+        "paymentTerm": "",
+        "groupName": "Test1_M",
+        "relations": {
+            "parentAccounts": [
+                {
+                    "accountName": "NIKE MASTER",
+                    "id": "569c93b43f26c104eefe55ba",
+                    "accountNumber": "NIKE_M"
+                }
+            ]
+        },
+        "system": "5649d0ce087df204a8a71638",
+        "templateId": "5649d0ce087df204a8a71638",
+        "organization": "5649d0ce087df204a8a71638",
+        "isActive": true
+    },
+    {
+        "Account Number": "Test2_M",
+        "Account Name": "Test2_Master",
+        "Address1": "5100 POPLAR AVE 15TH FL",
+        "City": "MEMPHIS",
+        "Country name": "United States",
+        "Zip Code": 38137,
+        "State": "TN",
+        "Country Code": "US",
+        "Parent Account": null,
+        "address2": "",
+        "address3": "",
+        "address4": "",
+        "shipmentProfile": "",
+        "paymentTerm": "",
+        "groupName": "Test2_Master",
+        "relations": {
+            "parentAccounts": [
+                {
+                    "accountName": null,
+                    "id": null,
+                    "accountNumber": null
+                }
+            ]
+        },
+        "system": "5649d0ce087df204a8a71638",
+        "templateId": "5649d0ce087df204a8a71638",
+        "organization": "5649d0ce087df204a8a71638",
+        "isActive": true
+    },
+    {
+        "Account Number": "12345",
+        "Account Name": "ABC Corp",
+        "Address1": "5100 POPLAR AVE 15TH FL",
+        "City": "MEMPHIS",
+        "Country name": "United States",
+        "Zip Code": 38137,
+        "State": "TN",
+        "Country Code": "US",
+        "Parent Account": "Test2_M",
+        "address2": "",
+        "address3": "",
+        "address4": "",
+        "shipmentProfile": "",
+        "paymentTerm": "",
+        "groupName": "Test2_M",
+        "relations": {
+            "parentAccounts": [
+                {
+                    "accountName": "NIKE MASTER",
+                    "id": "569c93b43f26c104eefe55ba",
+                    "accountNumber": "NIKE_M"
+                }
+            ]
+        },
+        "system": "5649d0ce087df204a8a71638",
+        "templateId": "5649d0ce087df204a8a71638",
+        "organization": "5649d0ce087df204a8a71638",
+        "isActive": true
+    },
+    {
+        "Account Number": "56748",
+        "Account Name": "XYZ Corp",
+        "Address1": "5100 POPLAR AVE 15TH FL",
+        "City": "MEMPHIS",
+        "Country name": "United States",
+        "Zip Code": 38137,
+        "State": "TN",
+        "Country Code": "US",
+        "Parent Account": "Test2_M",
+        "address2": "",
+        "address3": "",
+        "address4": "",
+        "shipmentProfile": "",
+        "paymentTerm": "",
+        "groupName": "Test2_M",
+        "relations": {
+            "parentAccounts": [
+                {
+                    "accountName": "NIKE MASTER",
+                    "id": "569c93b43f26c104eefe55ba",
+                    "accountNumber": "NIKE_M"
+                }
+            ]
+        },
+        "system": "5649d0ce087df204a8a71638",
+        "templateId": "5649d0ce087df204a8a71638",
+        "organization": "5649d0ce087df204a8a71638",
+        "isActive": true
+    }
+]

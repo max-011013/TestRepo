@@ -1,0 +1,20 @@
+adding loader for api call
+
+
+InsertDataIntoBatchTable
+btnStartEDIToggling_Click
+
+drDeliveryModedataset datarow ko array lena h kya?
+
+
+reports tab will be added horizontally below clients and selection menu and by default OTM Status History rhega
+have to use iframe or something simillar to show that functionality - iska research krna padega
+
+for now left wale menu me hi rhega under report tab
+
+
+
+ek dashboard model create krna h
+uske properties ki naming gridname_property
+controller name change krna have
+priority last - grid styling / theme styling

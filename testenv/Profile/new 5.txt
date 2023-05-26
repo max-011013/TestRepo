@@ -1,0 +1,76 @@
+mongodb://mongo_invoize_uat_dev:eqedT%24FszV1es%40Qo0w8%26C9V@localhost:44719/invoize-uat?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=invoize-uat&authMechanism=SCRAM-SHA-1&3t.uriVersion=3&3t.connection.name=UAT&3t.databases=invoize-uat&3t.alwaysShowAuthDB=true&3t.alwaysShowDBFromUserRole=true
+
+
+
+
+mongo db url = mongodb://mongo_invoize_uat_dev:eqedT%24FszV1es%40Qo0w8%26C9V@localhost:44719/invoize-uat?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=invoize-uat&authMechanism=SCRAM-SHA-1&3t.uriVersion=3&3t.connection.name=UAT&3t.databases=invoize-uat&3t.alwaysShowAuthDB=true&3t.alwaysShowDBFromUserRole=true
+
+
+gcloud compute start-iap-tunnel invoize-suite-uat-2-db-replica-1 27018  --local-host-port=0.0.0.0:44719  --zone=us-central1-a --project=searce-invoize
+
+
+if account exist
+
+
+"addedBy" : Invoize_Automation
+
+MongoDB shell version v4.4.15
+
+
+db.getCollection("ceva20150519134235Metadata").find({"addedBy" : "invoizeAutomation"})
+db.getCollection("ceva20150519134235Template").find({"addedBy" : "invoizeAutomation"})
+db.getCollection("Account").find({"addedBy" : "invoizeAutomation"})
+
+Sample Profile account
+db.getCollection("Account").find({"accountNumber" : "CATERPILLAR_M"})
+db.getCollection("ceva20150519134235Template").find({"profileName" : "CATERPILLAR_M AIR "})
+
+
+template -1896
+
+
+python = 2.
+
+
+metadata me shipment and doc profile
+
+64366cb884773ed2ece14f50
+64366cb884773ed2ece14f50
+
+
+db.getCollection("ChargeProfile_Shivani").find(
+	{}
+)
+
+db.getCollection("DeliveryProfile_Shivani").find(
+	{}
+)
+
+
+db.getCollection("Metadata_Shivani").find(
+	{}
+)
+
+db.getCollection("ceva20150519134235ChargeProfiles").find(
+	{}
+)
+
+
+db.getCollection("ceva20150519134235DeliveryProfiles").find(
+	{}
+)
+
+
+db.getCollection("ceva20150519134235Metadata").find(
+	{}
+)
+
+
+db.getCollection("ceva20150519134235Template").find(
+	{
+    "profileName" : "CATERPILLAR_M AIR "
+}
+)
+
+
+Master already present																									

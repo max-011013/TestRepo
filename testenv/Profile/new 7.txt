@@ -1,0 +1,64 @@
+{
+  "_id": {
+    "$oid": "64366cb884773ed2ece14f52"
+  },
+  "accountNumber": "APOLLO_M",
+  "accountName": "APOLLO MASTER",
+  "address1": "1175 PEACHTREE STREET NE",
+  "address2": "10TH FL",
+  "city": "ATLANTA",
+  "country": "UNITED STATES",
+  "zipCode": "30361",
+  "state": "GA",
+  "countryCode": "US",
+  "address3": "",
+  "address4": "",
+  "shipmentProfile": "",
+  "paymentTerm": "",
+  "stateCode": "",
+  "accountType": [
+    ""
+  ],
+  "isActive": true,
+  "addedBy": "invoizeAutomation",
+  "groupName": "APOLLO",
+  "relations": {
+    "childrenAccounts": [
+      {
+        "accountName": "APOLLO EXPORT WAREHOUSE",
+        "id": {
+          "$oid": "64366cb884773ed2ece14f53"
+        },
+        "accountNumber": "1000511921"
+      },
+      {
+        "accountName": "APOLLO INTERNATIONAL FORWARDERS INC",
+        "id": {
+          "$oid": "64366cb884773ed2ece14f54"
+        },
+        "accountNumber": "1000494374"
+      },
+      {
+        "accountName": "APOLLO METRO SOLUTIONS INC",
+        "id": {
+          "$oid": "64366cb884773ed2ece14f55"
+        },
+        "accountNumber": "1000242889"
+      },
+      {
+        "accountName": "APOLLO VREDESTEIN TIRES INC",
+        "id": {
+          "$oid": "64366cb884773ed2ece14f56"
+        },
+        "accountNumber": "1000259220"
+      }
+    ],
+    "parentAccounts": [
+      {
+        "accountName": null,
+        "id": null,
+        "accountNumber": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+button disable krna h starting mein
+jisme data nhi h uske button ko disable rakhna h submit ke baad
+
+on "to non-rated" button click
+controller method se usko wapas index(post) method pe redirect krna h

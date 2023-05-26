@@ -1,0 +1,348 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
+using System.Web.Mvc;
+using GBA_WEB.Models;
+using System.Configuration;
+using GBA_WEB.ViewModels;
+using Newtonsoft.Json;
+using System.Xml.Linq;
+using System.Web.Script.Serialization;
+using System.Net.NetworkInformation;
+using System.Data.Entity.Infrastructure;
+
+namespace GBA_WEB.Controllers
+{
+    public class DashboardController : Controller
+    {
+        #region-Objects
+        string mainconnn = ConfigurationManager.ConnectionStrings["DB_BillingRating"].ConnectionString;
+        LIVE_METADATAEntities lmde = new LIVE_METADATAEntities();
+        LIVE_BILLINGRATINGEntities lbre = new LIVE_BILLINGRATINGEntities();
+        DataTable dt_GlobalHAWBLISTDATATABLE = new DataTable();
+        DataTable additionalinputs = new DataTable();
+        DataTable auditStatusinput = new DataTable();
+        #endregion
+
+        public ActionResult Dashboard()
+        {
+            return View();
+
+        }
+        public ActionResult Index()
+        {
+            string path = Server.MapPath("~/Content/");
+            System.IO.File.WriteAllText(path + "clientdata.json", string.Empty);
+            var clientlist = lmde.Clients.Where(x => x.IsDomestic == true && x.IsBillingActive == true)
+                   .Select(cli => new ClientViewModel { ID = cli.ID, Name = cli.Name }).ToList();
+            ViewBag.ClientList = new SelectList(clientlist, "Id", "Name");
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Index(ClientViewModel CV)
+        {
+            string path = Server.MapPath("~/Content/");
+            System.IO.File.WriteAllText(path + "clientdata.json", string.Empty);
+            int auditstatusID = CV.AuditStatusID;
+            int clientid = CV.ID;
+            if (clientid == 0)
+                clientid = Convert.ToInt32(TempData["ID"]);
+            if (clientid!=0)
+                TempData["ID"] = clientid;
+            var lst = PopulateHawbGrid(clientid, auditstatusID);
+            string jsondata = new JavaScriptSerializer().Serialize(lst);
+            System.IO.File.WriteAllText(path + "clientdata.json", jsondata);
+            //var clientlist = lmde.Clients.Where(x => x.ID == clientid)
+            //       .Select(cli => new ClientViewModel { ID = cli.ID, Name = cli.Name }).ToList();
+            //ViewBag.ClientList = new SelectList(clientlist, "Id", "Name");
+            var clientlist = lmde.Clients.Where(x => x.IsDomestic == true && x.IsBillingActive == true)
+                   .Select(cli => new ClientViewModel { ID = cli.ID, Name = cli.Name }).ToList();
+            ViewBag.ClientList = new SelectList(clientlist, "Id", "Name");
+            TempData.Keep();
+            return View(CV);
+
+        }
+        //[HttpPost]
+        public JsonResult DisplayGridResult(int Clientid)
+        {
+           // var lst = PopulateHawbGrid(Clientid);
+            //string jsondata = new JavaScriptSerializer().Serialize(lst);
+            //if (jsondata != "")
+            //{
+            //    ViewBag.displaygrid = 0;
+            //}
+            //string path = Server.MapPath("~/Content/");
+
+            //System.IO.File.WriteAllText(path + "clientdata.json", jsondata);
+            return Json("true");
+        }
+        private DataSet getHawbGrid(int ClientId,int AuditStatusID)
+        {
+            var accountcode = GetAccountCode(ClientId);
+            string AccCode = String.Join(",", accountcode);
+            string strAcCode = "'''" + AccCode.Replace(",", "'',''") + "'''";
+            string Userid = "3722";
+            string ShipmentRates = "ShipmentRates";
+            string metadata = "LIVE_METADATA.dbo.";
+            string billingrating = "LIVE_BILLINGRATING.dbo.";
+            string Hawbstr = "";
+            SqlConnection sqlconn = new SqlConnection(mainconnn);
+            string sqlquery2 = "exec " + billingrating + "[GetDomesticHAWBListView] '" + ClientId.ToString() + "','" + Userid.ToString() + "'," + strAcCode.ToString() + ",'" + metadata.ToString() + "','" + billingrating.ToString() + "','" + ShipmentRates + "','" + Hawbstr + "','" + AuditStatusID + "'";
+            sqlconn.Open();
+            SqlCommand sqlcomm2 = new SqlCommand(sqlquery2, sqlconn);
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            adapter.SelectCommand = sqlcomm2;
+            DataSet ds2 = new DataSet();
+            adapter.Fill(ds2);
+            return ds2;
+        }
+        private List<GridViewModel> PopulateHawbGrid(int ClientId, int AuditStatusID)
+        {
+            ViewBag.weldone = "Hello";
+            List<GridViewModel> lst = new List<GridViewModel>();
+            var accountcode = GetAccountCode(ClientId);
+            string AccCode = String.Join(",", accountcode);
+            string strAcCode = "'''" + AccCode.Replace(",", "'',''") + "'''";
+            if (AuditStatusID == 0)
+                AuditStatusID = 56;
+            string Userid = "3722";
+            string ShipmentRates = "ShipmentRates";
+            string metadata = "LIVE_METADATA.dbo.";
+            string billingrating = "LIVE_BILLINGRATING.dbo.";
+            string Hawbstr = "";
+            SqlConnection sqlconn = new SqlConnection(mainconnn);
+            string sqlquery = "exec " + billingrating + "[GetDomesticHAWBListView] '" + ClientId.ToString() + "','" + Userid.ToString() + "'," + strAcCode.ToString() + ",'" + metadata.ToString() + "','" + billingrating.ToString() + "','" + ShipmentRates + "','" + Hawbstr + "','" + AuditStatusID + "'";
+            sqlconn.Open();
+            SqlCommand sqlcomm = new SqlCommand(sqlquery, sqlconn);
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            adapter.SelectCommand = sqlcomm;
+            DataSet ds = new DataSet();
+            adapter.Fill(ds);
+            DataSet ds2= new DataSet();
+            if (ds.Tables.Count == 4)
+            {
+                dt_GlobalHAWBLISTDATATABLE = ds.Tables[0];
+                additionalinputs = ds.Tables[2];
+                auditStatusinput = ds.Tables[3];
+                foreach (DataRow row in auditStatusinput.Rows)
+                {
+                    bool flag = false;
+                    switch (row.ItemArray[1].ToString())
+                    {
+                        case "Recheck":
+                            if (Convert.ToInt32(row.ItemArray[2]) > 0)
+                                AuditStatusID = 30;
+                            flag = true;
+                            break;
+                        case "Exceptions":
+                            if (Convert.ToInt32(row.ItemArray[2]) > 0)
+                                AuditStatusID = 56;
+                            flag = true;
+                            break;
+                        //case "Auto Rated": 
+                        //if (Convert.ToInt32(row.ItemArray[2]) > 0)
+                        //    AuditStatusID = 30;
+                        //break;
+                        case "Invoiced":
+                            if (Convert.ToInt32(row.ItemArray[2]) > 0)
+                                AuditStatusID = 2;
+                            flag = true;
+                            break;
+                        case "Ready to Invoice":
+                            if (Convert.ToInt32(row.ItemArray[2]) > 0)
+                                AuditStatusID = 66;
+                            flag = true;
+                            break;
+                        case "Non Rated":
+                            if (Convert.ToInt32(row.ItemArray[2]) > 0)
+                                AuditStatusID = 67;
+                            flag = true;
+                            break;
+                    }
+                    if (flag && AuditStatusID != 56)
+                    {
+                        ds2 = getHawbGrid(ClientId, AuditStatusID);
+                        dt_GlobalHAWBLISTDATATABLE = ds2.Tables[0];
+                        break;
+                    }
+
+                }
+                //else if ()
+                //{
+                //    SqlCommand sqlcomm2 = new SqlCommand(sqlquery, sqlconn);
+                //    SqlDataAdapter adapter2 = new SqlDataAdapter();
+                //    adapter.SelectCommand = sqlcomm2;
+                //    DataSet ds2 = new DataSet();
+                //    adapter2.Fill(ds2);
+                //}
+            }
+
+            foreach (DataRow row in dt_GlobalHAWBLISTDATATABLE.Rows)
+            {
+                GridViewModel gridModel = new GridViewModel();
+                gridModel.chk = row.ItemArray[0].ToString();
+                gridModel.RN = row.ItemArray[1].ToString();
+                gridModel.KeyValue = row.ItemArray[2].ToString();
+                gridModel.DocumentName = row.ItemArray[3].ToString();
+                gridModel.POD = row.ItemArray[4].ToString();
+                gridModel.BOL = row.ItemArray[5].ToString();
+                gridModel.Hawb = row.ItemArray[6].ToString();
+                gridModel.DisplayStatus = row.ItemArray[7].ToString();
+                gridModel.NextStatus = row.ItemArray[8].ToString();
+                gridModel.Information = row.ItemArray[9].ToString();
+                gridModel.Status = row.ItemArray[10].ToString();
+                gridModel.PODDAYS = row.ItemArray[11].ToString();
+                gridModel.ClientID = row.ItemArray[12].ToString();
+                gridModel.User1 = row.ItemArray[13].ToString();
+                gridModel.ShipmentMasterID = row.ItemArray[14].ToString();
+                gridModel.UnderComparision = row.ItemArray[15].ToString();
+                gridModel.Remark = row.ItemArray[16].ToString();
+                gridModel.DeliveryTime = row.ItemArray[17].ToString();
+                gridModel.ServiceLevel = row.ItemArray[18].ToString();
+                gridModel.PODDate = row.ItemArray[19].ToString();
+                gridModel.ReceivedDate = row.ItemArray[20].ToString();
+                gridModel.DueDate = row.ItemArray[21].ToString();
+                gridModel.TruckWeight = row.ItemArray[22].ToString();
+                gridModel.Checkindate = row.ItemArray[23].ToString();
+                gridModel.OriginLocation = row.ItemArray[24].ToString();
+                gridModel.DestinationLocation = row.ItemArray[25].ToString();
+                gridModel.IsTimeSpecific = row.ItemArray[26].ToString();
+                gridModel.ShipmentMaterial = row.ItemArray[27].ToString();
+                gridModel.VehicleType = row.ItemArray[28].ToString();
+                gridModel.Holiday = row.ItemArray[29].ToString();
+                gridModel.ShipperReference = row.ItemArray[30].ToString();
+                gridModel.LAND_SCGTRK = row.ItemArray[31].ToString();
+                gridModel.TotalExpense = row.ItemArray[32].ToString();
+                gridModel.NoofHAWBs = row.ItemArray[33].ToString();
+                gridModel.Pallets = row.ItemArray[34].ToString();
+                gridModel._48InchTT = row.ItemArray[35].ToString();
+                gridModel.Ratedon = row.ItemArray[36].ToString();
+                gridModel.Ratedby = row.ItemArray[37].ToString();
+                gridModel.StatusCode = row.ItemArray[38].ToString();
+                gridModel.IsTarckingNoFound = row.ItemArray[39].ToString();
+                gridModel.IsZeroBilled = row.ItemArray[40].ToString();
+                gridModel.IsMoreThan50Miles = row.ItemArray[41].ToString();
+                gridModel.TransportMode = row.ItemArray[42].ToString();
+                gridModel.IsOneWay = row.ItemArray[43].ToString();
+                gridModel.ShuttleLine = row.ItemArray[44].ToString();
+                gridModel.ReferenceField2 = row.ItemArray[45].ToString();
+                gridModel.CubicFeet = row.ItemArray[46].ToString();
+                gridModel.IsLongIsland = row.ItemArray[47].ToString();
+                gridModel.VesselType = row.ItemArray[48].ToString();
+                gridModel.IsDimensionMatched = row.ItemArray[49].ToString();
+                gridModel.Zone = row.ItemArray[50].ToString();
+                gridModel.ActionItem = row.ItemArray[51].ToString();
+                gridModel.RatedRev = row.ItemArray[52].ToString();
+                gridModel.RatedExp = row.ItemArray[53].ToString();
+                gridModel.ProfitMargin = row.ItemArray[54].ToString();
+                gridModel.RevenueMatching = row.ItemArray[55].ToString();
+                gridModel.TariffType = row.ItemArray[56].ToString();
+                gridModel.UserInput = row.ItemArray[57].ToString();
+                gridModel.Carrier = row.ItemArray[58].ToString();
+                gridModel.MAXLHAUL = row.ItemArray[59].ToString();
+                gridModel.DocumentAmount = row.ItemArray[60].ToString();
+                gridModel.Day = row.ItemArray[61].ToString();
+                gridModel.PickupTime = row.ItemArray[62].ToString();
+                gridModel.NoofCubes = row.ItemArray[63].ToString();
+                gridModel.ShipmentType = row.ItemArray[64].ToString();
+                gridModel.ShipmentRouting = row.ItemArray[65].ToString();
+                gridModel.MSOMiles = row.ItemArray[66].ToString();
+                gridModel.MSLMiles = row.ItemArray[67].ToString();
+                gridModel.IsGreaterthanDimension = row.ItemArray[68].ToString();
+                gridModel.TVSize = row.ItemArray[69].ToString();
+                gridModel.ConsigneeAddress1 = row.ItemArray[70].ToString();
+                gridModel.DimensionalWeight = row.ItemArray[71].ToString();
+                gridModel.InvoiceNote2 = row.ItemArray[72].ToString();
+                gridModel.Bucket = row.ItemArray[73].ToString();
+                gridModel.RatePrintStation = row.ItemArray[74].ToString();
+                gridModel.PODRegion = row.ItemArray[75].ToString();
+                gridModel.PODPmtType = row.ItemArray[76].ToString();
+                gridModel.PODChgToCode = row.ItemArray[77].ToString();
+                gridModel.PODChgToName = row.ItemArray[78].ToString();
+                gridModel.PODBillToName = row.ItemArray[79].ToString();
+                gridModel.CustomersName = row.ItemArray[80].ToString();
+                gridModel.ProductType = row.ItemArray[81].ToString();
+                gridModel.PODRevenueMatching = row.ItemArray[82].ToString();
+                gridModel.RevenueDifference = row.ItemArray[83].ToString();
+                gridModel.WeightDifference = row.ItemArray[84].ToString();
+                gridModel.Total = row.ItemArray[85].ToString();
+                gridModel.PODRatedRev = row.ItemArray[86].ToString();
+                gridModel.PODRatedExp = row.ItemArray[87].ToString();
+                gridModel.PODHighNegativeMargin = row.ItemArray[88].ToString();
+                gridModel.AccountCode = row.ItemArray[89].ToString();
+                gridModel.ShipDate = row.ItemArray[90].ToString();
+                gridModel.DeliveryDate = row.ItemArray[91].ToString();
+                gridModel.PODEnteredDate = row.ItemArray[92].ToString();
+                gridModel.StationCode = row.ItemArray[93].ToString();
+                gridModel.WorldPortServiceType = row.ItemArray[94].ToString();
+                gridModel.TransitTime = row.ItemArray[95].ToString();
+                gridModel.PODRtPrtStn = row.ItemArray[96].ToString();
+                gridModel.ChargeableWeight = row.ItemArray[97].ToString();
+                gridModel.ActualWeight = row.ItemArray[98].ToString();
+                gridModel.DimensionalWeight = row.ItemArray[99].ToString();
+                gridModel.ConsigneeName = row.ItemArray[100].ToString();
+                gridModel.Pieces = row.ItemArray[101].ToString();
+                gridModel.MDCMiles = row.ItemArray[102].ToString();
+                gridModel.Receivedby = row.ItemArray[103].ToString();
+                gridModel.ShipperName = row.ItemArray[104].ToString();
+                gridModel.ShipperCode = row.ItemArray[105].ToString();
+                gridModel.ShipperCity = row.ItemArray[106].ToString();
+                gridModel.ShipperZipcode = row.ItemArray[107].ToString();
+                gridModel.OriginZone = row.ItemArray[108].ToString();
+                gridModel.OriginState = row.ItemArray[109].ToString();
+                gridModel.OriginAirportCode = row.ItemArray[110].ToString();
+                gridModel.ConsigneeCode = row.ItemArray[111].ToString();
+                gridModel.ConsigneeCity = row.ItemArray[112].ToString();
+                gridModel.ConsigneeZipcode = row.ItemArray[113].ToString();
+                gridModel.DestinationZone = row.ItemArray[114].ToString();
+                gridModel.DestinationState = row.ItemArray[115].ToString();
+                gridModel.DestinationAirportCode = row.ItemArray[116].ToString();
+                gridModel.InvoiceNote1 = row.ItemArray[117].ToString();
+                gridModel.ItemDescription = row.ItemArray[118].ToString();
+                gridModel.ExpWaitTime = row.ItemArray[119].ToString();
+                gridModel.ExpWaitTimeDelivery = row.ItemArray[120].ToString();
+                gridModel.ExpWaitTimePickup = row.ItemArray[121].ToString();
+                gridModel.Difference = row.ItemArray[122].ToString();
+                gridModel.RatingNotes = row.ItemArray[123].ToString();
+                gridModel.PODBillToCode = row.ItemArray[124].ToString();
+                gridModel.HAWBPostedFlag = row.ItemArray[125].ToString();
+                gridModel.ReferenceField3 = row.ItemArray[126].ToString();
+                gridModel.RequestTariff_Quote = row.ItemArray[127].ToString();
+                gridModel.HAZMAT = row.ItemArray[128].ToString();
+                gridModel.NegativeMarginPercentage = row.ItemArray[129].ToString();
+                gridModel.DocumentsNotUploaded = row.ItemArray[130].ToString();
+                gridModel.ExpensesNotUploaded = row.ItemArray[131].ToString();
+                gridModel.DataEntryError = row.ItemArray[132].ToString();
+                gridModel.BOLDocuments = row.ItemArray[133].ToString();
+                gridModel.PODDocuments = row.ItemArray[134].ToString();
+                gridModel.wpRatingMsg = row.ItemArray[135].ToString();
+                gridModel.wpRatingStatus = row.ItemArray[136].ToString();
+                gridModel.imsInvoicingMsg = row.ItemArray[137].ToString();
+                gridModel.imsInvoicingStatus = row.ItemArray[138].ToString();
+                gridModel.ediInvoicingMsg = row.ItemArray[139].ToString();
+                gridModel.ediInvoicingStatus = row.ItemArray[140].ToString();
+                gridModel.LHAUL_21238 = row.ItemArray[141].ToString();
+                //gridModel.FUELSC_21239 = row.ItemArray[142].ToString();
+                //gridModel.BYNDEL_30307 = row.ItemArray[143].ToString();
+                //gridModel.NYCDEL_30308 = row.ItemArray[144].ToString();
+                //gridModel.O_SFRT_30309 = row.ItemArray[145].ToString();
+                //gridModel.BYNDPU_30859 = row.ItemArray[146].ToString();
+                //gridModel.NYCPU_30860 = row.ItemArray[147].ToString();
+                //gridModel.CALSUR_30902 = row.ItemArray[148].ToString();
+                //gridModel.IsDisplayGrid = true;
+                lst.Add(gridModel);
+            }
+
+            return lst;
+        }
+        public List<string> GetAccountCode(int clientId)
+        {
+            var accountlist = lbre.AccountMasters.Where(x => x.ClientID == clientId).
+                Select(x => x.AccountCode).ToList();
+            return accountlist;
+        }
+    }
+}

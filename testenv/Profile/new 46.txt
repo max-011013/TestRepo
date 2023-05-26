@@ -1,0 +1,328 @@
+Try
+            Dim strSQL As String
+            Dim adp As SqlDataAdapter
+            Dim dt As New DataTable()
+            strSQL = "select AccountCode,ClientID from " & GipsConn.DbBillingRating & " AccountMaster  where ClientID =" & ClientId
+            adp = New SqlDataAdapter(strSQL, GipsConn.RemoteConnection)
+            adp.Fill(dt)
+            If dt.Rows.Count > 0 Then
+                DataGridClinetsAccountCodes.DataSource = dt
+                DataGridClinetsAccountCodes.Columns(1).Width = 120
+                DataGridClinetsAccountCodes.Columns(1).ReadOnly = True
+                DataGridClinetsAccountCodes.Columns(0).ReadOnly = False
+                DataGridClinetsAccountCodes.Columns(2).Visible = False
+            End If
+            If SelecteAccountCode <> "----ALL----" Then
+                For I As Integer = 0 To DataGridClinetsAccountCodes.RowCount - 1
+                    If DataGridClinetsAccountCodes.Rows(I).Cells("AccountCode").Value.ToString() = SelecteAccountCode Then
+                        DataGridClinetsAccountCodes.Rows(I).Cells("chk1").Value = True
+                        Exit For
+                    End If
+                Next
+            End If
+            Return strSQL
+        Catch ex As Exception
+            RecordException("BindAccountCodeList", ex.Message)
+			
+			
+
+
+
+Private Sub btnAutoRatingStart_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAutoRatingTogglingStart.Click
+        Try
+            If frmWPRatingProcess.IsHandleCreated = True Or frmIMSToggling.IsHandleCreated = True Or frmEDIToggling.IsHandleCreated = True Then
+                MessageBox.Show("Auto WP Rating is not allowed when manual Rating / Toggling is in process.", "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                'If DateTime.Now.Hour >= 0 And DateTime.Now.Hour <= 6 Then
+                'If DateTime.Now.Hour >= 15 And DateTime.Now.Hour <= 19 Then
+                If (DateTime.Now.Hour >= 0 And DateTime.Now.Hour <= 12) Or EGLGlobal.userID = 3417 Then
+                    'If (DateTime.Now.Hour >= 19) Or EGLGlobal.userID = 3417 Then
+                    IsContinueAutoRating = True
+                    IsContinueAutoTogglingEDI = True
+                    IsContinueAutoTogglingIMS = True
+
+                    Dim WPRatingTogglingBatchID As Integer = 0
+                    Dim TryCount As Integer = 0
+
+                    While (WPRatingTogglingBatchID = 0 And TryCount < 3)
+                        WPRatingTogglingBatchID = InsertDataIntoBatchTable("WPAutomation", "", "", 0, True)
+                        'WPRatingTogglingBatchID = InsertDataIntoBatchTable("WPRating", "", "", 0, True)
+                        TryCount = TryCount + 1
+                    End While
+
+                    Dim objWPRate1 As New Global.WPRating.WPRating("eagle1.logistics.corp", 23, "", "", WPRatingTogglingBatchID, True)
+                    Dim t1 As Thread = New Thread(AddressOf objWPRate1.WPAutoRating)
+                    t1.Start()
+
+                    Dim objWPRate2 As New Global.WPRating.WPIMSToggling("eagle1.logistics.corp", 23, "", "", WPRatingTogglingBatchID, ClientID, True, True, True, True, True, True, True, False)
+                    Dim t2 As Thread = New Thread(AddressOf objWPRate2.WPAutoIMSToggling)
+                    t2.Start()
+
+                    Dim objWPRate3 As New Global.WPRating.WPEDIToggling("eagle1.logistics.corp", 23, "", "", WPRatingTogglingBatchID, True, True, True, True, True, True, True, False)
+                    Dim t3 As Thread = New Thread(AddressOf objWPRate3.WPAutoEDIToggling)
+                    t3.Start()
+
+                    BatchIDForAutoRating = WPRatingTogglingBatchID
+
+                    timerForAutoRating.Start()
+
+                    btnAutoRatingTogglingStart.Enabled = False
+                    btnAutoRatingTogglingStop.Enabled = True
+                    pImgForAutoRating.Visible = True
+
+                Else
+                    'MessageBox.Show("Auto WP Rating between 07:00 to 23:59 is not allowed.", "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    'MessageBox.Show("WP Auto Rating is allowed between 15:00 to 19:00. ", "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show("WP Auto Rating is allowed between 12:00 AM to 12:00 PM. ", "Alert", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End If
+        Catch ex As Exception
+            RecordException("Sub:btnAutoRatingStart_Click", ex.Message)
+        End Try
+    End Sub
+	
+	
+Private Sub btnAutoRatingStop_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAutoRatingTogglingStop.Click
+
+        IsContinueAutoRating = False
+        IsContinueAutoTogglingIMS = False
+        IsContinueAutoTogglingEDI = False
+
+        PleaseWait(True)
+
+        Thread.Sleep(20000)
+
+        btnAutoRatingTogglingStart.Enabled = True
+        btnAutoRatingTogglingStop.Enabled = False
+        pImgForAutoRating.Visible = False
+
+        timerForAutoRating.Stop()
+
+        PleaseWait(False)
+
+    End Sub
+	
+	
+
+Private Function PopulateOTMStatusGrid()
+        Try
+
+            Dim Top10 As String = ""
+            Dim ProcessDateCr As String
+            Dim ReqDateCr As String
+
+
+
+
+            If ChkAnyPro.Checked = False Then
+                ProcessDateCr = " "
+
+            Else
+                ProcessDateCr = " and(ProcessUpdateTimeStamp>= '" + DtpProStartDate.Value.ToString("MM/dd/yyyy") + "' and ProcessUpdateTimeStamp <='" + DtpProEndDate.Value.AddDays(1).ToString("MM/dd/yyyy") + "')"
+            End If
+            If ChkAnyReq.Checked = False Then
+                ReqDateCr = " "
+            Else
+                ReqDateCr = " and(RequestTime >= '" + DtpReqStartDate.Value.ToString("MM/dd/yyyy") + "' and  RequestTime <='" + DtpReqEndDate.Value.AddDays(1).ToString("MM/dd/yyyy") + "') "
+            End If
+
+            If ChkAnyReq.Checked Or ChkAnyPro.Checked Then
+                Top10 = ""
+            Else
+                Top10 = " top 30 "
+            End If
+            DgvOtmStatusHistory.DataSource = Nothing
+            'Dim Qry As String = " select " + Top10 + " isnull(U.Name,'Auto') as [User],C.Name As[Client],R.ReportName" & _
+            '     " ,isnull(CONVERT(varchar(12),r.BeginDate,113),'N/A')as [Begin Date] " & _
+            '     " ,isnull(CONVERT(varchar(12),r.EndDate,113),'N/A')as [End Date]" & _
+            '     " ,OS.Inserted,OS.Updated" & _
+            '     " ,case when R.StatusCode=14 then 'Successfully processed' else " & _
+            '     " (case when R.StatusCode=19 then 'No data in OTM to process' else " & _
+            '     " (case when R.StatusCode=15 then 'Error' else " & _
+            '     " (case when R.StatusCode=25 then 'Pending' else 'N/A' end)end)end)end as [Status]" & _
+            '     " ,CONVERT(varchar(17),RequestTime,113) as [WP Request Time]" & _
+            '    " , CONVERT(varchar(17),ProcessUpdateTimeStamp,113) [Processing Time]" & _
+            '    "  from " & GipsConn.DbBillingRating & "Reportsregister R " & _
+            '      " left join " & GipsConn.DbMetaData & "Clients C on (R.Clientid=C.ID) " & _
+            '     "  left join " & GipsConn.DbBillingRating & "Users U on(U.ID=R.ByUserID)" & _
+            '     "  left join " & GipsConn.DbSummary & "OTMSummary OS on(OS.ReportID=R.ID)" & _
+            '     "  where   r.StatusCode<>17  and R.ClientID=" + ClientID + ProcessDateCr + ReqDateCr + " and R.Reporttype='otm' order by R.id desc  "
+            'Dim adp As New SqlDataAdapter(Qry, GipsConn.RemoteConnection)
+            'Dim dt As New DataTable
+            'adp.Fill(dt)
+            'If dt.Rows.Count > 0 Then
+            '    DgvOtmStatusHistory.DataSource = dt
+            'End If
+
+            'Dim buttonColumn As New DataGridViewImageColumn
+            'buttonColumn.Name = "Button"
+            'buttonColumn.HeaderText = ""
+            'buttonColumn.Image = My.Resources.download_down_arrow
+            'buttonColumn.Width = 35
+            'If DgvOtmStatusHistory.Columns.Contains("Button") = False Then
+            '    DgvOtmStatusHistory.Columns.Insert(10, buttonColumn)
+            'Else
+            '    DgvOtmStatusHistory.Columns("Button").DisplayIndex = 10
+            'End If
+            'DgvOtmStatusHistory.Columns("User").Width = 100
+            'DgvOtmStatusHistory.Columns("Client").Width = 150
+            'DgvOtmStatusHistory.Columns("ReportName").Width = 290
+            'DgvOtmStatusHistory.Columns("Begin Date").Width = 100
+            'DgvOtmStatusHistory.Columns("End Date").Width = 100
+            'DgvOtmStatusHistory.Columns("Status").Width = 160
+            'DgvOtmStatusHistory.Columns("Inserted").Width = 70
+            'DgvOtmStatusHistory.Columns("Updated").Width = 70
+            'DgvOtmStatusHistory.Columns("WP Request Time").Width = 130
+            'DgvOtmStatusHistory.Columns("Processing Time").Width = 130
+
+            Dim Qry As String
+
+            If ClientID = EGLGlobal.Clients.CostcoSEADomestic Then
+                'ADDED BY VEENA 8 JAN 2020 TICKET # N5YUX515JE
+
+                Qry = " select  isnull(U.Name,'Auto') as [User],C.Name As[Client],case when R.ReportName is null then '----Email not received yet----' else R.ReportName end as [ReportName]" &
+                                " ,isnull(CONVERT(varchar(12),r.BeginDate,113),'N/A')as [Begin Date] " &
+                                " ,isnull(CONVERT(varchar(12),r.EndDate,113),'N/A')as [End Date]" &
+                                " ,OS.Inserted + OS.Updated as [Total HAWBs Processed]" &
+                                " ,(COALESCE(TechnicalError, 0) + COALESCE(InvalidAccountCode, 0) + COALESCE(InvalidData, 0) + COALESCE(ConectionError, 0)) as [Unprocessed HAWBs]" &
+                                " ,OS.TotalHAWBsInOTM as [Total HAWBs in OTM Report],OS.InPOD as [Matched with POD],OS.WithI as [Shipments with I],OS.WithY as [Shipments with Y]" &
+                                " ,case when R.StatusCode=14 then 'Successfully processed' else " &
+                                " (case when R.StatusCode=19 then 'No data in OTM to process' else " &
+                                " (case when R.StatusCode=15 then R.Comment else " &
+                                " (case when R.StatusCode=25 then 'Pending' else 'N/A' end)end)end)end as [Status]" &
+                                " ,CONVERT(varchar(17),RequestTime,113) as [WP Request Time]" &
+                                " , CONVERT(varchar(17),ProcessUpdateTimeStamp,113) [Processing Time]" &
+                                "  from " & GipsConn.DbBillingRating & "Reportsregister R " &
+                                " left join " & GipsConn.DbMetaData & "Clients C on (R.Clientid=C.ID) " &
+                                "  left join " & GipsConn.DbBillingRating & "Users U on(U.ID=R.ByUserID)" &
+                                "  left join " & GipsConn.DbSummary & "OTMSummary OS on(OS.ReportID=R.ID)" &
+                                "  where R.RequestTime >= dateadd(hour, -24, GETDATE()) and r.StatusCode<>17  and R.ClientID=" + ClientID + ProcessDateCr + ReqDateCr + " and R.Reporttype  in ('otm','Dim') order by R.id asc  "
+
+            Else
+
+                Qry = " select " + Top10 + " isnull(U.Name,'Auto') as [User],C.Name As[Client],case when R.ReportName is null then '----Email not received yet----' else R.ReportName end as [ReportName]" & _
+                                " ,isnull(CONVERT(varchar(12),r.BeginDate,113),'N/A')as [Begin Date] " & _
+                                " ,isnull(CONVERT(varchar(12),r.EndDate,113),'N/A')as [End Date]" & _
+                                " ,OS.Inserted + OS.Updated as [Total HAWBs Processed]" & _
+                                " ,(COALESCE(TechnicalError, 0) + COALESCE(InvalidAccountCode, 0) + COALESCE(InvalidData, 0) + COALESCE(ConectionError, 0)) as [Unprocessed HAWBs]" & _
+                                " ,OS.TotalHAWBsInOTM as [Total HAWBs in OTM Report],OS.InPOD as [Matched with POD],OS.WithI as [Shipments with I],OS.WithY as [Shipments with Y]" & _
+                                " ,case when R.StatusCode=14 then 'Successfully processed' else " & _
+                                " (case when R.StatusCode=19 then 'No data in OTM to process' else " & _
+                                " (case when R.StatusCode=15 then R.Comment else " & _
+                                " (case when R.StatusCode=25 then 'Pending' else 'N/A' end)end)end)end as [Status]" & _
+                                " ,CONVERT(varchar(17),RequestTime,113) as [WP Request Time]" & _
+                                " , CONVERT(varchar(17),ProcessUpdateTimeStamp,113) [Processing Time]" & _
+                                "  from " & GipsConn.DbBillingRating & "Reportsregister R " & _
+                                " left join " & GipsConn.DbMetaData & "Clients C on (R.Clientid=C.ID) " & _
+                                "  left join " & GipsConn.DbBillingRating & "Users U on(U.ID=R.ByUserID)" & _
+                                "  left join " & GipsConn.DbSummary & "OTMSummary OS on(OS.ReportID=R.ID)" & _
+                                "  where   r.StatusCode<>17  and R.ClientID=" + ClientID + ProcessDateCr + ReqDateCr + " and R.Reporttype  in ('otm','Dim') order by R.id desc  "
+
+            End If
+
+            'Commented by Nilay Patel on 13 July 2018 and added above code
+            '       Dim Qry As String = " select " + Top10 + " isnull(U.Name,'Auto') as [User],C.Name As[Client],R.ReportName" & _
+            '" ,isnull(CONVERT(varchar(12),r.BeginDate,113),'N/A')as [Begin Date] " & _
+            '" ,isnull(CONVERT(varchar(12),r.EndDate,113),'N/A')as [End Date]" & _
+            '   " ,OS.Inserted + OS.Updated as [Total HAWBs Processed]" & _
+            '" ,(COALESCE(TechnicalError, 0) + COALESCE(InvalidAccountCode, 0) + COALESCE(InvalidData, 0) + COALESCE(ConectionError, 0)) as [Unprocessed HAWBs]" & _
+            '" ,OS.InvalidData as [Invalid Data HAWB Count],OS.HAWBInvalidData as [Invalid Data in OTM HAWBs],OS.ConectionError as [Conection Error HAWB Count],OS.HAWBConectionError as [Server Connection HAWBs]" & _
+            '" ,OS.TechnicalError as [Technical Error HAWB Count],OS.HAWBTechnicalError as [Technical Error HAWBs],OS.InvalidAccountCode as [Invalid AccountCode HAWB Count],OS.HAWBInvalidAccountCode as [Invalid AccountCode HAWBs]" & _
+            '" ,case when R.StatusCode=14 then 'Successfully processed' else " & _
+            '" (case when R.StatusCode=19 then 'No data in OTM to process' else " & _
+            '" (case when R.StatusCode=15 then R.Comment else " & _
+            '" (case when R.StatusCode=25 then 'Pending' else 'N/A' end)end)end)end as [Status]" & _
+            '" ,CONVERT(varchar(17),RequestTime,113) as [WP Request Time]" & _
+            '" , CONVERT(varchar(17),ProcessUpdateTimeStamp,113) [Processing Time]" & _
+            '"  from " & GipsConn.DbBillingRating & "Reportsregister R " & _
+            '" left join " & GipsConn.DbMetaData & "Clients C on (R.Clientid=C.ID) " & _
+            '"  left join " & GipsConn.DbBillingRating & "Users U on(U.ID=R.ByUserID)" & _
+            '"  left join " & GipsConn.DbSummary & "OTMSummary OS on(OS.ReportID=R.ID)" & _
+            '"  where   r.StatusCode<>17  and R.ClientID=" + ClientID + ProcessDateCr + ReqDateCr + " and R.Reporttype  in ('otm','Dim') order by R.id desc  "
+
+            'Dim Qry As String = " select " + Top10 + " isnull(U.Name,'Auto') as [User],C.Name As[Client],R.ReportName" & _
+            '     " ,isnull(CONVERT(varchar(12),r.BeginDate,113),'N/A')as [Begin Date] " & _
+            '     " ,isnull(CONVERT(varchar(12),r.EndDate,113),'N/A')as [End Date]" & _
+            '     " ,OS.Inserted,OS.Updated" & _
+            '     " ,(COALESCE(TechnicalError, 0) + COALESCE(InvalidAccountCode, 0) + COALESCE(InvalidData, 0) + COALESCE(ConectionError, 0)) as [Unprocessed HAWBs]" & _
+            '     " ,OS.InvalidData as [Invalid Data HAWB Count],OS.HAWBInvalidData as [Invalid Data in OTM HAWBs],OS.ConectionError as [Conection Error HAWB Count],OS.HAWBConectionError as [Server Connection HAWBs]" & _
+            '     " ,OS.TechnicalError as [Technical Error HAWB Count],OS.HAWBTechnicalError as [Technical Error HAWBs],OS.InvalidAccountCode as [Invalid AccountCode HAWB Count],OS.HAWBInvalidAccountCode as [Invalid AccountCode HAWBs]" & _
+            '     " ,case when R.StatusCode=14 then 'Successfully processed' else " & _
+            '     " (case when R.StatusCode=19 then 'No data in OTM to process' else " & _
+            '     " (case when R.StatusCode=15 then R.Comment else " & _
+            '     " (case when R.StatusCode=25 then 'Pending' else 'N/A' end)end)end)end as [Status]" & _
+            '     " ,CONVERT(varchar(17),RequestTime,113) as [WP Request Time]" & _
+            '     " , CONVERT(varchar(17),ProcessUpdateTimeStamp,113) [Processing Time]" & _
+            '     "  from " & GipsConn.DbBillingRating & "Reportsregister R " & _
+            '     " left join " & GipsConn.DbMetaData & "Clients C on (R.Clientid=C.ID) " & _
+            '     "  left join " & GipsConn.DbBillingRating & "Users U on(U.ID=R.ByUserID)" & _
+            '     "  left join " & GipsConn.DbSummary & "OTMSummary OS on(OS.ReportID=R.ID)" & _
+            '     "  where   r.StatusCode<>17  and R.ClientID=" + ClientID + ProcessDateCr + ReqDateCr + " and R.Reporttype  in ('otm','Dim') order by R.id desc  "
+            Dim adp As New SqlDataAdapter(Qry, GipsConn.RemoteConnection)
+            Dim dt As New DataTable
+            adp.Fill(dt)
+            If dt.Rows.Count > 0 Then
+                DgvOtmStatusHistory.DataSource = dt
+
+                Dim InsertAt As Integer = dt.Columns.Count
+
+                Dim buttonColumn As New DataGridViewImageColumn
+                buttonColumn.Name = "Button"
+                buttonColumn.HeaderText = ""
+                buttonColumn.Image = My.Resources.download_down_arrow
+                buttonColumn.Width = 35
+                If DgvOtmStatusHistory.Columns.Contains("Button") = False Then
+                    DgvOtmStatusHistory.Columns.Insert(InsertAt, buttonColumn)
+                Else
+                    DgvOtmStatusHistory.Columns("Button").DisplayIndex = InsertAt
+                End If
+
+                'InsertAt = dt.Columns.Count
+                'Dim Linkcolumn As New DataGridViewLinkColumn
+                'Linkcolumn.Name = "Link"
+                'Linkcolumn.HeaderText = "More Details"
+
+                'Linkcolumn.Width = 45
+                'If DgvOtmStatusHistory.Columns.Contains("Link") = False Then
+                '    DgvOtmStatusHistory.Columns.Insert(InsertAt, Linkcolumn)
+                'Else
+                '    DgvOtmStatusHistory.Columns("Link").DisplayIndex = InsertAt + 1
+                'End If
+
+                DgvOtmStatusHistory.Columns("User").Width = 100
+                DgvOtmStatusHistory.Columns("Client").Width = 130
+                DgvOtmStatusHistory.Columns("ReportName").Width = 300
+                DgvOtmStatusHistory.Columns("Begin Date").Width = 100
+                DgvOtmStatusHistory.Columns("End Date").Width = 100
+                DgvOtmStatusHistory.Columns("Shipments with I").Width = 100
+                DgvOtmStatusHistory.Columns("Shipments with Y").Width = 100
+                DgvOtmStatusHistory.Columns("Matched with POD").Width = 100
+                DgvOtmStatusHistory.Columns("Status").Width = 160
+                DgvOtmStatusHistory.Columns("Total HAWBs Processed").Width = 100
+                'DgvOtmStatusHistory.Columns("Inserted").Width = 58
+                'DgvOtmStatusHistory.Columns("Updated").Width = 58
+                DgvOtmStatusHistory.Columns("Unprocessed HAWBs").Width = 100
+                DgvOtmStatusHistory.Columns("WP Request Time").Width = 120
+                DgvOtmStatusHistory.Columns("Processing Time").Width = 120
+                'Linkcolumn.Text = "Show"
+                'Linkcolumn.UseColumnTextForLinkValue = True
+
+                'If lblShowOTMStatusDetails.Text.ToString.ToUpper = "show details".ToUpper Then
+                '    SetVisiblity_ColumnsOTMStatusGrid(True)
+                '    lblShowOTMStatusDetails.Text = "Hide Details"
+                'ElseIf lblShowOTMStatusDetails.Text.ToString.ToUpper = "hide details".ToUpper Then
+                '    SetVisiblity_ColumnsOTMStatusGrid(False)
+                '    lblShowOTMStatusDetails.Text = "Show Details"
+                'End If
+
+                'SetVisiblity_ColumnsOTMStatusGrid(False)
+
+                lblShowOTMStatusDetails.Text = "Show Details"
+                'SetVisiblity_ColumnsOTMStatusGrid(False)
+            End If
+
+        Catch ex As Exception
+
+        End Try
+    End Function
+

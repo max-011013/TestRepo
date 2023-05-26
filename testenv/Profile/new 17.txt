@@ -1,0 +1,183 @@
+642e919d371337b3937133cd
+644621686e11df2dfdff345a
+
+
+
+accountId
+: 
+"56c1f94b3f26c12c436f9832"
+data
+: 
+Array(1)
+0
+: 
+CommodityCode
+: 
+"test"
+accountId
+: 
+"56c1f94b3f26c12c436f9832"
+allocatedTo
+: 
+"shivani.metangale@searce.com"
+auditingScope
+: 
+false
+bookingNumber
+: 
+"test1"
+correctionScope
+: 
+false
+createdOn
+: 
+"2023-04-24"
+dataSource
+: 
+"Invoize"
+deliveryScope
+: 
+false
+documents
+: 
+[]
+groupName
+: 
+"NOT IN SYSTEM"
+id
+: 
+"644621686e11df2dfdff345a"
+invoiceOwner
+: 
+"Need to Verify"
+invoicingScope
+: 
+false
+issueStatus
+: 
+null
+printingScope
+: 
+false
+rejectionDetails
+: 
+[]
+shipmentDate
+: 
+"2023-04-24"
+shipmentInformation#masterShipmentNumber
+: 
+"test1"
+shipmentInformation#serviceLevel
+: 
+"test"
+shipmentInformation#serviceType
+: 
+"test"
+shipmentInformation#shipmentNumber
+: 
+"test3"
+shipmentParties#consigneeAccountNumber
+: 
+"test"
+shipmentParties#consigneeZipCode
+: 
+"2110"
+shipmentParties#shipperAccountNumber
+: 
+"test"
+shipperAirportCode
+: 
+"DJN"
+sourceSystem
+: 
+"Invoize"
+spotquoteID
+: 
+"test"
+status
+: 
+"Ready for Processing"
+tempId
+: 
+0
+templateId
+: 
+"5649d0ce087df204a8a71637"
+updateField
+: 
+false
+[[Prototype]]
+: 
+Object
+length
+: 
+1
+[[Prototype]]
+: 
+Array(0)
+multipleFields
+: 
+[]
+profileBased
+: 
+OriginAirportCode
+: 
+{profileBased: true, isUniqueField: false, isReadonly: false, isMandatory: false, useForCustomReport: true, …}
+ServiceType
+: 
+{profileBased: true, key: 'ServiceType', isReadonly: false, isMandatory: false, tariffIdentifier: false, …}
+billToPartyPartyAccountNumber
+: 
+{profileBased: true, key: 'billToPartyPartyAccountNumber', isReadonly: false, isMandatory: true, useForCustomReport: true, …}
+businessUnit
+: 
+{profileBased: true, key: 'businessUnit', isReadonly: null, isMandatory: null, tariffIdentifier: null, …}
+destinationStationCode
+: 
+{profileBased: true, key: 'destinationStationCode', isReadonly: false, isMandatory: true, useForCustomReport: true, …}
+fpcName
+: 
+{profileBased: true, isDocUPload: null, key: 'fpcName', isReadonly: null, isMandatory: null, …}
+mode
+: 
+{profileBased: true, key: 'mode', isReadonly: false, isMandatory: false, useForCustomReport: true, …}
+originStationCode
+: 
+{profileBased: true, key: 'originStationCode', isReadonly: false, isMandatory: false, useForCustomReport: false, …}
+references#references#businessUnit
+: 
+{profileBased: true, key: 'references#references#businessUnit', isReadonly: null, isMandatory: null, label: 'Business Unit', …}
+serviceLevel
+: 
+{profileBased: true, key: 'serviceLevel', isReadonly: false, isMandatory: false, tariffIdentifier: false, …}
+serviceType
+: 
+{profileBased: true, key: 'serviceType', isReadonly: false, isMandatory: false, tariffIdentifier: false, …}
+shipmentInformation#shipmentInformation#serviceLevel
+: 
+{profileBased: true, key: 'shipmentInformation#shipmentInformation#serviceLevel', isReadonly: false, isMandatory: false, label: 'Service Level', …}
+shipmentInformation#shipmentInformation#serviceType
+: 
+{profileBased: true, key: 'shipmentInformation#shipmentInformation#serviceType', isReadonly: false, isMandatory: false, label: 'Service Type', …}
+shipmentInformation#shipmentInformation#transportMode
+: 
+{profileBased: true, key: 'shipmentInformation#shipmentInformation#transportMode', isReadonly: false, isMandatory: false, label: 'Transport Mode', …}
+shipmentType
+: 
+{profileBased: true, key: 'shipmentType', isReadonly: false, isMandatory: false, tariffIdentifier: false, …}
+transportMode
+: 
+{profileBased: true, key: 'transportMode', isReadonly: false, isMandatory: false, tariffIdentifier: true, …}
+[[Prototype]]
+: 
+Object
+systemId
+: 
+"5649d0ce087df204a8a71638"
+templateId
+: 
+"5a9ea5f3a0cd5f7002148353"
+[[Prototype]]
+: 
+Object

@@ -1,0 +1,2 @@
+we will be ready with the script for account and profile creation for adding those details on production
+Firstly we will add 10 account on production if it goes well we will go ahead with that.

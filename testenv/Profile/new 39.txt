@@ -1,0 +1,15 @@
+
+Authenticate using API key
+bearertoken
+OAuth
+
+Restfull API vs rest
+
+explain jwt token in a min
+konsa http response aata h vo bhi btana h
+authentication type ka difference btana h
+public API vs private API
+
+
+
+

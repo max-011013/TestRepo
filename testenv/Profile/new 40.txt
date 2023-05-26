@@ -1,0 +1,33 @@
+Steps to repeat
+1. Create A .net framework Web API
+2. Update Nuget Packages
+
+Let me give a brief introduction about the routing of this project.
+In this APP_Start folder we have Routeconfig file which manages the routing of the whole web application
+and this webapiConfig contains all the routing for the API's
+
+Now to use Swagger we add swagger to our wep application
+To do that we go to Nuget package and download SwashBuckle to implement swagger.
+
+Now we run our program to run swagger,
+to see swagger we simply go /swagger
+It actually already running
+now we have account and values, so what it is  our documentations so 
+if you want to look what account or value controller has for end point so lets say 
+
+for values  it has 5 end points
+If we click on Get, it shows that the api will return will return this type of Structure
+Now we click on Try it out, So here we are getting a message that authorization is required that is a user must be logged in
+Its also show the requested URL, response header and response code
+
+Now One thing when we checked on Account there is nowhere to log in, we have register but no get token we have to fix that as we 
+are not able to log in using Oauth we have setup
+
+Now we have to configure Swagger so under the APP_Start folder we now have a swaggerconfig file,
+this file allows us to uncomment thing to change something 
+so they have documented in such a way that we can easily make changes 
+
+
+
+
+the type of body that we send along the post api call
